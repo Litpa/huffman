@@ -17,12 +17,12 @@ class Node {
 	Node(Node *other1, Node *other2);
 	~Node();
 
+	void Print(int i);
 	
 	Node& operator =(const Node& other);
 	
 
 };
-
 
 Node::Node(char k, int w) {
 	try {
@@ -35,7 +35,8 @@ Node::Node(char k, int w) {
 	weight = w;
 	charnum = 1;
 	chars[0] = k;
-	l = r = NULL;
+	l = NULL;
+	r = NULL;
 }
 
 
@@ -74,7 +75,7 @@ Node::Node(Node *other1, Node *other2) {
 		chars[i] = other1->chars[i];
 	}
 	for (int i = 0; i < other2->charnum; i++) {
-		chars[other1->charnum + i] = other1->chars[i];
+		chars[other1->charnum + i] = other2->chars[i];
 	}
 	
 	weight = other1->weight + other2->weight;
@@ -117,23 +118,98 @@ Node& Node::operator =(const Node &other) {
 	return *this;
 }
 
+void Node::Print(int i) {
+	cout << "Node " << i << endl;
+	cout << "w = " << weight << " charnum = " << charnum << endl; 
+	for (int i = 0; i < charnum; i++) {
+		cout << (char) chars[i] << " ";
+	}
+	cout << endl;
+	if (l != NULL) {
+		l->Print(i + 1);
+	}
+	else {
+		cout << "no l\n";
+	}
+	if (r != NULL) {
+		r->Print(i + 1);
+	}
+	else {
+		cout << "no r\n";
+	}
+}
 
-int main() {
-	//todo: take the filename from the console
+
+struct CompareNodes {
+    bool operator()(Node *p1, Node *p2) {
+        return p1->weight > p2->weight;
+    }
+};
+
+void encode(ifstream &f1, ofstream &f2) {
 	int frq[256];
 	for (int i = 0; i < 256; i++) {
 		frq[i] = 0;
 	}
-	ifstream f("input.txt");
-	if (!f) {
+	
+	char inp;
+	while (f1 >> inp) {
+		frq[inp] += 1;
+	}
+	f1.close();
+
+	
+	vector<Node> v;
+	for (int i = 0; i < 256; i++) {
+		if (frq[i]) {
+			Node n((char) i, frq[i]);
+			v.push_back(n);
+		}
+	}
+	
+	cout << "number of leafs: " << v.size() << endl;
+	
+	priority_queue<Node*, vector<Node*>, CompareNodes> q;
+	for (int i = 0; i < v.size(); i++) {
+		q.push(&v[i]);
+	}
+	
+	Node *head, *head2;
+	head = NULL;
+	while(!q.empty()) {
+		head = q.top();
+		q.pop();
+		if (q.empty()) {
+			break;
+		}
+		head2 = q.top();
+		q.pop();
+	
+		Node n(head, head2);
+		v.push_back(n);
+		q.push(&v[v.size() - 1]);
+	}
+
+	head->Print(0);
+}
+
+
+int main() {
+	//todo: take the filenames from the console
+	/*
+	ifstream f1("input.txt");
+	if (!f1) {
 		cerr << "File not found\n";
 		exit(1);
 	}
-	char inp;
-	while (f >> inp) {
-		frq[inp] += 1;
-	}
-	f.close();
-
+	ofstream f2("output.txt");
+	
+	encode(f1, f2);
+	*/
+	Node na('a', 10), nb('b', 8), nc('c', 5), nd('d', 2);
+	Node n1(&nd, &nc);
+	Node n2(&n1, &nb);
+	Node n3(&na, &n2);
+	n3.Print(0);
 	return 0;
 }
