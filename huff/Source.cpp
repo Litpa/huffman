@@ -52,7 +52,7 @@ Node::Node(const Node &other) {
 	weight = other.weight;
 	
 	charnum = other.charnum;
-	for (int i; i < charnum; i++) {
+	for (int i = 0; i < charnum; i++) {
 		chars[i] = other.chars[i];
 	}
 	
@@ -108,7 +108,7 @@ Node& Node::operator =(const Node &other) {
 	}
 	weight = other.weight;
 	charnum = other.charnum;
-	for (int i; i < charnum; i++) {
+	for (int i = 0; i < charnum; i++) {
 		chars[i] = other.chars[i];
 	}
 	
@@ -121,9 +121,11 @@ Node& Node::operator =(const Node &other) {
 void Node::Print(int i) {
 	cout << "Node " << i << endl;
 	cout << "w = " << weight << " charnum = " << charnum << endl; 
+	/*
 	for (int i = 0; i < charnum; i++) {
 		cout << (char) chars[i] << " ";
 	}
+	*/
 	cout << endl;
 	if (l != NULL) {
 		l->Print(i + 1);
@@ -175,7 +177,6 @@ void encode(ifstream &f1, ofstream &f2) {
 	}
 	
 	Node *head, *head2;
-	head = NULL;
 	while(!q.empty()) {
 		head = q.top();
 		q.pop();
@@ -206,10 +207,49 @@ int main() {
 	
 	encode(f1, f2);
 	*/
+	
 	Node na('a', 10), nb('b', 8), nc('c', 5), nd('d', 2);
-	Node n1(&nd, &nc);
-	Node n2(&n1, &nb);
-	Node n3(&na, &n2);
-	n3.Print(0);
+	vector<Node> v;
+	v.push_back(na); //0
+	v.push_back(nb); //1
+	v.push_back(nc); //2
+	v.push_back(nd); //3
+	
+	priority_queue<Node*, vector<Node*>, CompareNodes> q;
+	for (int i = 0; i < v.size(); i++) {
+		q.push(&v[i]);
+	}
+
+	Node *head, *head2;
+	while(!q.empty()) {
+		cout << "test a\n";
+		v[0].Print(0);
+		cout << endl;
+		if (q.top() == &v[0]) {
+			cout << "node* a:\n";
+		} 
+		head = q.top();
+		cout << "head:\n";
+		head->Print(0);
+		q.pop();
+		if (q.empty()) {
+			break;
+		}
+		head2 = q.top();
+		cout << "head2:\n";
+		head2->Print(0);
+		q.pop();
+	
+		Node n(head, head2);
+		cout << "res:\n";
+		n.Print(0);
+		v.push_back(n);
+		q.push(&v[v.size() - 1]);
+		int i;
+		cin >> i;
+		cout << "--------------------------------\n";
+	}
+
+	head->Print(0);
 	return 0;
 }
